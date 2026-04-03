@@ -54,7 +54,7 @@ export const createTask = async (req, res) => {
         status,
         priority,
         assigneeId,
-        due_date: new Date(due_date),
+        due_date: due_date ? new Date(due_date) : null,
       },
     });
 
@@ -63,6 +63,8 @@ export const createTask = async (req, res) => {
       where: { id: task.id },
       include: { assignee: true },
     });
+
+    const origin = req.get("origin");
 
     await inngest.send({
       name: "app/task.assigned",
