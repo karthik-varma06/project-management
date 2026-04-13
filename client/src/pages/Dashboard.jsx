@@ -13,7 +13,7 @@ const Dashboard = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
     return (
-        <div className='max-w-6xl mx-auto space-y-6'>
+        <div className='max-w-6xl mx-auto space-y-6 bento-grid'>
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div>
                     <p className='inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-gradient-to-r from-[var(--brand-a)]/15 to-[var(--brand-b)]/15 text-[var(--brand-a)] dark:text-blue-300 mb-3'>
@@ -23,7 +23,7 @@ const Dashboard = () => {
                     <p className="text-[var(--text-muted)] text-sm">Your project pulse across active workspaces, priorities, and deadlines.</p>
                 </div>
 
-                <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2 px-5 py-2.5 text-sm rounded-xl bg-gradient-to-br from-[var(--brand-a)] to-[var(--brand-b)] text-white hover:opacity-90 transition shadow-lg shadow-blue-500/20" >
+                <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2 px-5 py-2.5 text-sm rounded-xl btn-primary shadow-lg shadow-blue-500/20" >
                     <Plus size={16} /> New Project
                 </button>
 

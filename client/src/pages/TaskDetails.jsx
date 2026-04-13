@@ -97,7 +97,7 @@ const TaskDetails = () => {
     if (!task) return <div className="text-rose-500 px-4 py-6">Task not found.</div>;
 
     return (
-        <div className="flex flex-col-reverse lg:flex-row gap-6 sm:p-4 text-[var(--text-main)] max-w-6xl mx-auto">
+        <div className="flex flex-col-reverse lg:flex-row gap-6 sm:p-4 text-[var(--text-main)] max-w-6xl mx-auto bento-grid">
             <div className="w-full lg:w-2/3">
                 <div className="p-5 rounded-2xl border border-[var(--surface-border)] bg-[var(--bg-elevated)] flex flex-col lg:h-[80vh]">
                     <h2 className="text-base font-semibold flex items-center gap-2 mb-4 text-[var(--text-main)]">

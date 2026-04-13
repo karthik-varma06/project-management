@@ -12,14 +12,14 @@ const Navbar = ({ setIsSidebarOpen }) => {
     const { openUserProfile, signOut } = useClerk();
 
     return (
-        <div className="w-full border-b border-[var(--surface-border)] bg-[var(--bg-elevated)]/90 backdrop-blur-xl px-6 xl:px-16 py-3 flex-shrink-0">
+        <div className="w-full border-b border-[var(--surface-border)] bg-[var(--bg-elevated)]/85 backdrop-blur-xl px-6 xl:px-16 py-3 flex-shrink-0 bento-card">
             <div className="flex items-center justify-between max-w-6xl mx-auto gap-4">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                     <button onClick={() => setIsSidebarOpen((prev) => !prev)} className="sm:hidden p-2 rounded-xl transition text-[var(--text-muted)] hover:bg-black/5 dark:hover:bg-white/5" >
                         <HiOutlineAdjustmentsHorizontal size={18} />
                     </button>
 
-                    <div className="relative flex-1 max-w-lg">
+                    <div className="relative flex-1 max-w-lg bento-card">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] size-4" />
                         <input
                             type="text"

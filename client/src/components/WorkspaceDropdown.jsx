@@ -47,7 +47,7 @@ function WorkspaceDropdown() {
 
     return (
         <div className="relative m-4" ref={dropdownRef}>
-            <button onClick={() => setIsOpen(prev => !prev)} className="w-full flex items-center justify-between p-3 h-auto text-left rounded-2xl border border-[var(--surface-border)] bg-[var(--bg-elevated)] hover:bg-black/5 dark:hover:bg-white/5 transition" >
+            <button onClick={() => setIsOpen(prev => !prev)} className="w-full flex items-center justify-between p-3 h-auto text-left rounded-2xl border border-[var(--surface-border)] bg-[var(--bg-elevated)] hover:bg-black/5 dark:hover:bg-white/5 transition bento-card motion-float" >
                 <div className="flex items-center gap-3 min-w-0">
                     <Avatar
                         src={currentWorkspace?.image_url}
@@ -70,7 +70,7 @@ function WorkspaceDropdown() {
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 w-72 bg-[var(--bg-elevated)] border border-[var(--surface-border)] rounded-2xl shadow-xl top-[calc(100%+0.5rem)] left-0 p-2">
+                <div className="absolute z-50 w-72 bg-[var(--bg-elevated)] border border-[var(--surface-border)] rounded-2xl shadow-xl top-[calc(100%+0.5rem)] left-0 p-2 bento-card">
                     <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1 px-2">
                         Workspaces
                     </p>

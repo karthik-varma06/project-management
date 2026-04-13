@@ -38,7 +38,7 @@ const ProjectOverview = () => {
                             <PiFoldersDuotone size={32} className="text-[var(--brand-a)]" />
                         </div>
                         <p className="text-[var(--text-muted)]">No projects yet</p>
-                        <button onClick={() => setIsDialogOpen(true)} className="mt-4 px-4 py-2 text-sm bg-gradient-to-br from-[var(--brand-a)] to-[var(--brand-b)] text-white rounded-xl hover:opacity-90 transition">
+                        <button onClick={() => setIsDialogOpen(true)} className="mt-4 px-4 py-2 text-sm btn-primary rounded-xl">
                             Create your First Project
                         </button>
                         <CreateProjectDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />

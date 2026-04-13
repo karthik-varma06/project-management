@@ -26,7 +26,7 @@ const Team = () => {
     }, [currentWorkspace]);
 
     return (
-        <div className="space-y-6 max-w-6xl mx-auto">
+        <div className="space-y-6 max-w-6xl mx-auto bento-grid">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-semibold text-[var(--text-main)] mb-1">Team</h1>

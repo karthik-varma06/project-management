@@ -30,11 +30,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     return (
         <div
             ref={sidebarRef}
-            className={`z-20 bg-[var(--bg-elevated)] min-w-72 flex flex-col h-screen border-r border-[var(--surface-border)] max-sm:absolute transition-all ${isSidebarOpen ? 'left-0' : '-left-full'}`}
+            className={`z-20 bg-[var(--bg-elevated)] min-w-72 flex flex-col h-screen border-r border-[var(--surface-border)] max-sm:absolute transition-all ${isSidebarOpen ? 'left-0' : '-left-full'} bento-hero`}
         >
             <WorkspaceDropdown />
             <div className='flex-1 overflow-y-auto no-scrollbar flex flex-col px-3 pb-4'>
-                <div className='rounded-2xl border border-[var(--surface-border)] p-2 bg-white/30 dark:bg-white/5'>
+                <div className='rounded-2xl border border-[var(--surface-border)] p-2 bg-white/30 dark:bg-white/5 bento-card'>
                     {menuItems.map((item) => (
                         <NavLink
                             to={item.href}

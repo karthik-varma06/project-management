@@ -53,7 +53,7 @@ export default function ProjectDetail() {
     }
 
     return (
-        <div className="space-y-5 max-w-6xl mx-auto text-[var(--text-main)]">
+        <div className="space-y-5 max-w-6xl mx-auto text-[var(--text-main)] bento-grid">
             <div className="flex max-md:flex-col gap-4 flex-wrap items-start justify-between max-w-6xl">
                 <div className="flex items-center gap-4">
                     <button className="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-muted)]" onClick={() => navigate('/projects')}>
@@ -64,7 +64,7 @@ export default function ProjectDetail() {
                         <span className={`px-2 py-1 rounded-lg text-xs capitalize ${statusColors[project.status]}`}>{project.status.replace("_", " ")}</span>
                     </div>
                 </div>
-                <button onClick={() => setShowCreateTask(true)} className="flex items-center gap-2 px-5 py-2 text-sm rounded-xl bg-gradient-to-br from-[var(--brand-a)] to-[var(--brand-b)] text-white" >
+                <button onClick={() => setShowCreateTask(true)} className="flex items-center gap-2 px-5 py-2 text-sm rounded-xl btn-primary motion-pulse" >
                     <PiPlusBold className="size-4" /> New Task
                 </button>
             </div>

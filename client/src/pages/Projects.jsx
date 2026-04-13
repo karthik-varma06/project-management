@@ -40,7 +40,7 @@ export default function Projects() {
     }, [projects, searchTerm, filters]);
 
     return (
-        <div className="space-y-6 max-w-6xl mx-auto">
+        <div className="space-y-6 max-w-6xl mx-auto bento-grid">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-semibold text-[var(--text-main)] mb-1">Projects</h1>
@@ -81,7 +81,7 @@ export default function Projects() {
                         </div>
                         <h3 className="text-lg font-semibold text-[var(--text-main)] mb-1">No projects found</h3>
                         <p className="text-[var(--text-muted)] mb-6 text-sm">Create your first project to get started</p>
-                        <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-1.5 bg-gradient-to-br from-[var(--brand-a)] to-[var(--brand-b)] text-white px-4 py-2 rounded-xl mx-auto text-sm" >
+                        <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-1.5 btn-primary px-4 py-2 rounded-xl mx-auto text-sm" >
                             <Plus className="size-4" />
                             Create Project
                         </button>

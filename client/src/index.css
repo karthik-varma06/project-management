@@ -1,24 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-    --bg-main: #f7f9fc;
+    --bg-main: #f4f7ff;
     --bg-elevated: #ffffff;
+    --bg-soft: #eef3ff;
     --text-main: #0f172a;
-    --text-muted: #475569;
-    --surface-border: #dbe2ee;
-    --brand-a: #5b7cfa;
-    --brand-b: #8b5cf6;
+    --text-muted: #52607a;
+    --surface-border: #d7e0f6;
+    --brand-a: #5a67ff;
+    --brand-b: #7c4dff;
+    --brand-c: #00b8d9;
+    --shadow-soft: 0 12px 40px -20px rgba(71, 106, 255, 0.5);
 }
 
 .dark {
-    --bg-main: #090d14;
-    --bg-elevated: #101828;
-    --text-main: #e5ebff;
-    --text-muted: #93a0bf;
-    --surface-border: #1d2940;
-    --brand-a: #60a5fa;
-    --brand-b: #a78bfa;
+    --bg-main: #070b14;
+    --bg-elevated: #0f1627;
+    --bg-soft: #121b31;
+    --text-main: #e8efff;
+    --text-muted: #9eabd2;
+    --surface-border: #1f2b46;
+    --brand-a: #7aa2ff;
+    --brand-b: #a98bff;
+    --brand-c: #4dd7ff;
+    --shadow-soft: 0 20px 60px -30px rgba(15, 24, 46, 0.9);
 }
 
 * {
@@ -31,13 +37,94 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: 'Space Grotesk', 'Outfit', sans-serif;
+    font-family: 'Sora', 'Space Grotesk', 'Outfit', sans-serif;
+    letter-spacing: -0.015em;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;
+}
+
+@keyframes floatY {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(90, 103, 255, 0.2); }
+    50% { box-shadow: 0 0 0 8px rgba(90, 103, 255, 0.0); }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bento-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.bento-card {
+    border: 1px solid var(--surface-border);
+    background: linear-gradient(145deg, color-mix(in srgb, var(--bg-elevated) 92%, #ffffff 8%), var(--bg-elevated));
+    border-radius: 1rem;
+    box-shadow: var(--shadow-soft);
+    transition: transform 180ms ease, box-shadow 220ms ease, border-color 180ms ease;
+    animation: fadeInUp 240ms ease;
+}
+
+.bento-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--brand-a) 45%, var(--surface-border));
+}
+
+.bento-hero {
+    background:
+        radial-gradient(circle at 15% 15%, color-mix(in srgb, var(--brand-a) 18%, transparent), transparent 35%),
+        radial-gradient(circle at 85% 20%, color-mix(in srgb, var(--brand-b) 16%, transparent), transparent 38%),
+        radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--brand-c) 14%, transparent), transparent 45%),
+        var(--bg-elevated);
+}
+
+.btn-primary {
+    background: linear-gradient(120deg, var(--brand-a), var(--brand-b));
+    color: white;
+    border-radius: 0.85rem;
+    transition: transform 160ms ease, opacity 200ms ease;
+}
+
+.btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.btn-ghost {
+    border: 1px solid var(--surface-border);
+    color: var(--text-main);
+    background: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
+    border-radius: 0.85rem;
+    transition: background 180ms ease;
+}
+
+.btn-ghost:hover {
+    background: color-mix(in srgb, var(--bg-soft) 65%, transparent);
+}
+
+.motion-float {
+    animation: floatY 3.8s ease-in-out infinite;
+}
+
+.motion-pulse {
+    animation: pulseGlow 2.2s ease-in-out infinite;
 }
 
 @layer base {
@@ -55,28 +142,24 @@ h6 {
     }
 
     ::-webkit-scrollbar-track {
-        background-color: #e5e7eb;
+        background-color: color-mix(in srgb, var(--bg-soft) 90%, transparent);
     }
 
     .dark ::-webkit-scrollbar-track {
-        background-color: #1c1c1e;
+        background-color: #0f1627;
     }
 
     ::-webkit-scrollbar-thumb {
-        background-color: #bbc3d1;
+        background-color: color-mix(in srgb, var(--brand-a) 35%, #8fa4d7);
         border-radius: 0.375rem;
     }
 
     .dark ::-webkit-scrollbar-thumb {
-        background-color: #374151;
+        background-color: #304263;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background-color: #99a5bc;
-    }
-
-    .dark ::-webkit-scrollbar-thumb:hover {
-        background-color: #4b5563;
+        background-color: color-mix(in srgb, var(--brand-a) 45%, #6e85bd);
     }
 
     .dark input[type="date"]::-webkit-calendar-picker-indicator {
@@ -85,7 +168,7 @@ h6 {
 
     input[type="checkbox"] {
         appearance: none;
-        background-color: #d1d5db;
+        background-color: #cfd8ee;
         border-radius: 9999px;
         cursor: pointer;
         width: 1rem;
@@ -93,51 +176,35 @@ h6 {
     }
 
     .dark input[type="checkbox"] {
-        background-color: #374151;
+        background-color: #314261;
     }
 
     input[type="checkbox"]:checked {
-        background-color: #3b82f6;
+        background-color: var(--brand-a);
     }
 
     select {
-        background-color: white;
-        color: #18181b;
+        background-color: var(--bg-elevated);
+        color: var(--text-main);
     }
 
     .dark select {
-        background-color: #0f172a;
+        background-color: #121b31;
         color: #e5e7eb;
-        border-color: #3f3f46 !important;
+        border-color: #2c3958 !important;
     }
 
     select option {
-        background-color: white;
-        color: #18181b;
+        background-color: var(--bg-elevated);
+        color: var(--text-main);
     }
 
     .dark select option {
-        background-color: #1e293b;
+        background-color: #121b31;
         color: #e5e7eb;
     }
 
     select:hover {
-        border-color: #d4d4d8;
-    }
-
-    .dark select:hover {
-        border-color: #52525b;
-    }
-
-    select:focus {
-        outline: none;
-        ring: 2px;
-        ring-color: #3b82f6;
-    }
-
-    .dark select:focus {
-        outline: none;
-        ring: 2px;
-        ring-color: #3b82f6;
+        border-color: color-mix(in srgb, var(--brand-a) 40%, var(--surface-border));
     }
 }
