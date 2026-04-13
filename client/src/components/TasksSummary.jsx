@@ -1,61 +1,59 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Clock, AlertTriangle, User } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useUser } from "@clerk/clerk-react";
+import { PiArrowRightBold, PiUserCircleDuotone, PiWarningCircleDuotone, PiTimerDuotone } from 'react-icons/pi';
 
 export default function TasksSummary() {
-
     const { currentWorkspace } = useSelector((state) => state.workspace);
     const { user } = useUser();
     const [tasks, setTasks] = useState([]);
 
-    // Get all tasks for all projects in current workspace
     useEffect(() => {
         if (currentWorkspace) {
             setTasks(currentWorkspace.projects.flatMap((project) => project.tasks));
         }
     }, [currentWorkspace]);
 
-    const myTasks = tasks.filter(i => i.assigneeId === user.id);
+    const myTasks = tasks.filter(i => i.assigneeId === user?.id);
     const overdueTasks = tasks.filter(t => t.due_date && new Date(t.due_date) < new Date() && t.status !== 'DONE');
     const inProgressIssues = tasks.filter(i => i.status === 'IN_PROGRESS');
 
     const summaryCards = [
         {
-            title: "My Tasks",
+            title: 'My Tasks',
             count: myTasks.length,
-            icon: User,
-            color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400",
-            items: myTasks.slice(0, 3)
+            icon: PiUserCircleDuotone,
+            color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+            items: myTasks.slice(0, 3),
         },
         {
-            title: "Overdue",
+            title: 'Overdue',
             count: overdueTasks.length,
-            icon: AlertTriangle,
-            color: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-400",
-            items: overdueTasks.slice(0, 3)
+            icon: PiWarningCircleDuotone,
+            color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+            items: overdueTasks.slice(0, 3),
         },
         {
-            title: "In Progress",
+            title: 'In Progress',
             count: inProgressIssues.length,
-            icon: Clock,
-            color: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400",
-            items: inProgressIssues.slice(0, 3)
-        }
+            icon: PiTimerDuotone,
+            color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+            items: inProgressIssues.slice(0, 3),
+        },
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             {summaryCards.map((card) => (
-                <div key={card.title} className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 rounded-lg overflow-hidden">
-                    <div className="border-b border-zinc-200 dark:border-zinc-800 p-4 pb-3">
+                <div key={card.title} className="border border-[var(--surface-border)] bg-[var(--bg-elevated)] rounded-2xl overflow-hidden">
+                    <div className="border-b border-[var(--surface-border)] p-4 pb-3">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-                                <card.icon className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
+                            <div className="p-2 bg-black/5 dark:bg-white/5 rounded-xl">
+                                <card.icon className="w-4 h-4 text-[var(--brand-a)]" />
                             </div>
                             <div className="flex items-center justify-between flex-1">
-                                <h3 className="text-sm font-medium text-gray-800 dark:text-white">{card.title}</h3>
-                                <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-semibold ${card.color}`}>
+                                <h3 className="text-sm font-medium text-[var(--text-main)]">{card.title}</h3>
+                                <span className={`inline-block mt-1 px-2 py-1 rounded-lg text-xs font-semibold ${card.color}`}>
                                     {card.count}
                                 </span>
                             </div>
@@ -63,24 +61,18 @@ export default function TasksSummary() {
                     </div>
                     <div className="p-4">
                         {card.items.length === 0 ? (
-                            <p className="text-sm text-gray-500 dark:text-zinc-400 text-center py-4">
-                                No {card.title.toLowerCase()}
-                            </p>
+                            <p className="text-sm text-[var(--text-muted)] text-center py-4">No {card.title.toLowerCase()}</p>
                         ) : (
                             <div className="space-y-3">
                                 {card.items.map((issue) => (
-                                    <div key={issue.id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
-                                        <h4 className="text-sm font-medium text-gray-800 dark:text-white truncate">
-                                            {issue.title}
-                                        </h4>
-                                        <p className="text-xs text-gray-600 dark:text-zinc-400 capitalize mt-1">
-                                            {issue.type} • {issue.priority} priority
-                                        </p>
+                                    <div key={issue.id} className="p-3 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors cursor-pointer">
+                                        <h4 className="text-sm font-medium text-[var(--text-main)] truncate">{issue.title}</h4>
+                                        <p className="text-xs text-[var(--text-muted)] capitalize mt-1">{issue.type} • {issue.priority} priority</p>
                                     </div>
                                 ))}
                                 {card.count > 3 && (
-                                    <button className="flex items-center justify-center w-full text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-white mt-2">
-                                        View {card.count - 3} more <ArrowRight className="w-3 h-3 ml-2" />
+                                    <button className="flex items-center justify-center w-full text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] mt-2">
+                                        View {card.count - 3} more <PiArrowRightBold className="w-3 h-3 ml-2" />
                                     </button>
                                 )}
                             </div>

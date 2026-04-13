@@ -1,8 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+
+:root {
+    --bg-main: #f7f9fc;
+    --bg-elevated: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --surface-border: #dbe2ee;
+    --brand-a: #5b7cfa;
+    --brand-b: #8b5cf6;
+}
+
+.dark {
+    --bg-main: #090d14;
+    --bg-elevated: #101828;
+    --text-main: #e5ebff;
+    --text-muted: #93a0bf;
+    --surface-border: #1d2940;
+    --brand-a: #60a5fa;
+    --brand-b: #a78bfa;
+}
 
 * {
     font-family: 'Outfit', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Space Grotesk', 'Outfit', sans-serif;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -12,6 +41,11 @@
 }
 
 @layer base {
+    body {
+        background: var(--bg-main);
+        color: var(--text-main);
+    }
+
     button {
         cursor: pointer;
     }

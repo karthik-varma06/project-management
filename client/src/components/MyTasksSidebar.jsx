@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { CheckSquareIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
+import { PiListChecksBold } from 'react-icons/pi';
+import { HiChevronDown, HiChevronRight } from 'react-icons/hi2';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 
 function MyTasksSidebar() {
-
     const { user } = useUser();
     const { currentWorkspace } = useSelector((state) => state.workspace);
 
@@ -17,79 +17,70 @@ function MyTasksSidebar() {
     const getTaskStatusColor = (status) => {
         switch (status) {
             case 'DONE':
-                return 'bg-green-500';
+                return 'bg-emerald-500';
             case 'IN_PROGRESS':
-                return 'bg-yellow-500';
+                return 'bg-amber-500';
             case 'TODO':
-                return 'bg-gray-500 dark:bg-zinc-500';
+                return 'bg-slate-400';
             default:
-                return 'bg-gray-400 dark:bg-zinc-400';
+                return 'bg-slate-300';
         }
     };
 
-    const fetchUserTasks = () => {
+    useEffect(() => {
         const userId = user?.id || '';
-
         if (!userId || !currentWorkspace) return;
 
-        const currentWorkspaceTasks = currentWorkspace.projects.flatMap((project) => {
-            return project.tasks.filter((task) => task?.assignee?.id === userId);
-        });
+        const currentWorkspaceTasks = currentWorkspace.projects.flatMap((project) =>
+            project.tasks.filter((task) => task?.assignee?.id === userId)
+        );
 
         setMyTasks(currentWorkspaceTasks);
-    };
-
-    useEffect(() => {
-        fetchUserTasks();
-    }, [currentWorkspace]);
+    }, [currentWorkspace, user?.id]);
 
     return (
-        <div className="mt-6 px-3">
-            <div onClick={toggleMyTasks} className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800">
+        <div className="mt-5">
+            <div onClick={toggleMyTasks} className="flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/5">
                 <div className="flex items-center gap-2">
-                    <CheckSquareIcon className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-zinc-300">My Tasks</h3>
-                    <span className="bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300 text-xs px-2 py-0.5 rounded">
+                    <PiListChecksBold className="w-4 h-4 text-[var(--text-muted)]" />
+                    <h3 className="text-sm font-medium text-[var(--text-main)]">My Tasks</h3>
+                    <span className="bg-black/5 dark:bg-white/10 text-[var(--text-muted)] text-xs px-2 py-0.5 rounded-lg">
                         {myTasks.length}
                     </span>
                 </div>
 
                 {showMyTasks ? (
-                    <ChevronDownIcon className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
+                    <HiChevronDown className="w-4 h-4 text-[var(--text-muted)]" />
                 ) : (
-                    <ChevronRightIcon className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
+                    <HiChevronRight className="w-4 h-4 text-[var(--text-muted)]" />
                 )}
             </div>
 
             {showMyTasks && (
-                <div className="mt-2 pl-2">
-                    <div className="space-y-1">
-                        {myTasks.length === 0 ? (
-                            <div className="px-3 py-2 text-xs text-gray-500 dark:text-zinc-500 text-center">
-                                No tasks assigned
-                            </div>
-                        ) : (
-                            myTasks.map((task, index) => (
-                                <Link
-                                    key={index}
-                                    to={`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`}
-                                    className="w-full rounded-lg transition-all duration-200 text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white"
-                                >
-                                    <div className="flex items-center gap-2 px-3 py-2 w-full min-w-0">
-                                        <div className={`w-2 h-2 rounded-full ${getTaskStatusColor(task.status)} flex-shrink-0`} />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-medium truncate">
-                                                {task.title}
-                                            </p>
-                                            <p className="text-xs text-gray-500 dark:text-zinc-500 lowercase">
-                                                {task.status.replace('_', ' ')}
-                                            </p>
-                                        </div>
+                <div className="mt-2 pl-2 space-y-1">
+                    {myTasks.length === 0 ? (
+                        <div className="px-3 py-2 text-xs text-[var(--text-muted)] text-center">
+                            No tasks assigned
+                        </div>
+                    ) : (
+                        myTasks.map((task) => (
+                            <Link
+                                key={task.id}
+                                to={`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`}
+                                className="w-full rounded-xl transition-all duration-200 text-[var(--text-main)] hover:bg-black/5 dark:hover:bg-white/5"
+                            >
+                                <div className="flex items-center gap-2 px-3 py-2 w-full min-w-0">
+                                    <div className={`w-2 h-2 rounded-full ${getTaskStatusColor(task.status)} flex-shrink-0`} />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-medium truncate">{task.title}</p>
+                                        <p className="text-[11px] text-[var(--text-muted)] lowercase">
+                                            {task.status.replace('_', ' ')}
+                                        </p>
                                     </div>
-                                </Link>
-                            ))
-                        )}
-                    </div>
+                                </div>
+                            </Link>
+                        ))
+                    )}
                 </div>
             )}
         </div>

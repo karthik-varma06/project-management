@@ -130,22 +130,26 @@ const workspaceSlice = createSlice({
     },
 
     deleteTask: (state, action) => {
-      state.currentWorkspace.projects.map((p) => {
-        p.tasks = p.tasks.filter((t) => !action.payload.includes(t.id));
-        return p;
-      });
+      const { projectId, taskIds } = action.payload;
+
+      state.currentWorkspace.projects = state.currentWorkspace.projects.map((p) =>
+        p.id === projectId
+          ? {
+              ...p,
+              tasks: p.tasks.filter((t) => !taskIds.includes(t.id)),
+            }
+          : p
+      );
 
       state.workspaces = state.workspaces.map((w) =>
         w.id === state.currentWorkspace.id
           ? {
               ...w,
               projects: w.projects.map((p) =>
-                p.id === action.payload.projectId
+                p.id === projectId
                   ? {
                       ...p,
-                      tasks: p.tasks.filter(
-                        (t) => !action.payload.includes(t.id)
-                      ),
+                      tasks: p.tasks.filter((t) => !taskIds.includes(t.id)),
                     }
                   : p
               ),

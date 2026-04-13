@@ -3,13 +3,13 @@ import { ChevronDown, Check, Plus } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentWorkspace } from "../features/workspaceSlice";
 import { useNavigate } from "react-router-dom";
-import { dummyWorkspaces } from "../assets/assets";
-import { useClerk , useOrganizationList } from "@clerk/clerk-react";
+import { useClerk, useOrganizationList } from "@clerk/clerk-react";
+import Avatar from "./common/Avatar";
 
 function WorkspaceDropdown() {
-
-    const {setActive , userMemberships , isLoaded} = useOrganizationList
-    ({userMemberships: true})
+    const { setActive, userMemberships, isLoaded } = useOrganizationList({
+        userMemberships: true,
+    });
 
     const { openCreateOrganization } = useClerk()
 
@@ -22,13 +22,12 @@ function WorkspaceDropdown() {
     const navigate = useNavigate();
 
     const onSelectWorkspace = (organizationId) => {
-        setActive({ organization : organizationId })
+        setActive({ organization: organizationId })
         dispatch(setCurrentWorkspace(organizationId))
         setIsOpen(false);
         navigate('/')
     }
 
-    // Close dropdown on outside click
     useEffect(() => {
         function handleClickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -40,60 +39,70 @@ function WorkspaceDropdown() {
     }, []);
 
     useEffect(() => {
-        if(currentWorkspace && isLoaded){
-            setActive({ organization : currentWorkspace.id })
+        if (currentWorkspace && isLoaded) {
+            setActive({ organization: currentWorkspace.id })
         }
-    }, [currentWorkspace , isLoaded])
+    }, [currentWorkspace, isLoaded])
 
 
     return (
         <div className="relative m-4" ref={dropdownRef}>
-            <button onClick={() => setIsOpen(prev => !prev)} className="w-full flex items-center justify-between p-3 h-auto text-left rounded hover:bg-gray-100 dark:hover:bg-zinc-800" >
-                <div className="flex items-center gap-3">
-                    <img src={currentWorkspace?.image_url} alt={currentWorkspace?.name} className="w-8 h-8 rounded shadow" />
+            <button onClick={() => setIsOpen(prev => !prev)} className="w-full flex items-center justify-between p-3 h-auto text-left rounded-2xl border border-[var(--surface-border)] bg-[var(--bg-elevated)] hover:bg-black/5 dark:hover:bg-white/5 transition" >
+                <div className="flex items-center gap-3 min-w-0">
+                    <Avatar
+                        src={currentWorkspace?.image_url}
+                        name={currentWorkspace?.name}
+                        seed={currentWorkspace?.id}
+                        className="w-9 h-9"
+                        textClassName="text-xs"
+                        alt={currentWorkspace?.name || "Workspace"}
+                    />
                     <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-800 dark:text-white text-sm truncate">
+                        <p className="font-medium text-[var(--text-main)] text-sm truncate">
                             {currentWorkspace?.name || "Select Workspace"}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">
+                        <p className="text-xs text-[var(--text-muted)] truncate">
                             {workspaces.length} workspace{workspaces.length !== 1 ? "s" : ""}
                         </p>
                     </div>
                 </div>
-                <ChevronDown className="w-4 h-4 text-gray-500 dark:text-zinc-400 flex-shrink-0" />
+                <ChevronDown className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 w-64 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded shadow-lg top-full left-0">
-                    <div className="p-2">
-                        <p className="text-xs text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-2 px-2">
-                            Workspaces
-                        </p>
-                        {userMemberships.data.map(({organization}) => (
-                            <div key={organization.id} onClick={() => onSelectWorkspace(organization.id)} className="flex items-center gap-3 p-2 cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-zinc-800" >
-                                <img src={organization.imageUrl} alt={organization.name} className="w-6 h-6 rounded" />
+                <div className="absolute z-50 w-72 bg-[var(--bg-elevated)] border border-[var(--surface-border)] rounded-2xl shadow-xl top-[calc(100%+0.5rem)] left-0 p-2">
+                    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1 px-2">
+                        Workspaces
+                    </p>
+                    <div className="space-y-1 max-h-64 overflow-y-auto">
+                        {(userMemberships?.data || []).map(({ organization }) => (
+                            <div key={organization.id} onClick={() => onSelectWorkspace(organization.id)} className="flex items-center gap-3 p-2 cursor-pointer rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition" >
+                                <Avatar
+                                    src={organization.imageUrl}
+                                    name={organization.name}
+                                    seed={organization.id}
+                                    className="w-7 h-7"
+                                    textClassName="text-[10px]"
+                                    alt={organization.name}
+                                />
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-800 dark:text-white truncate">
+                                    <p className="text-sm font-medium text-[var(--text-main)] truncate">
                                         {organization.name}
                                     </p>
-                                    <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">
+                                    <p className="text-xs text-[var(--text-muted)] truncate">
                                         {organization.membersCount || 0} members
                                     </p>
                                 </div>
                                 {currentWorkspace?.id === organization.id && (
-                                    <Check className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                                    <Check className="w-4 h-4 text-[var(--brand-a)] flex-shrink-0" />
                                 )}
                             </div>
                         ))}
                     </div>
 
-                    <hr className="border-gray-200 dark:border-zinc-700" />
-
-                    <div onClick={() => {openCreateOrganization(); setIsOpen(false)}} className="p-2 cursor-pointer rounded group hover:bg-gray-100 dark:hover:bg-zinc-800" >
-                        <p className="flex items-center text-xs gap-2 my-1 w-full text-blue-600 dark:text-blue-400 group-hover:text-blue-500 dark:group-hover:text-blue-300">
-                            <Plus className="w-4 h-4" /> Create Workspace
-                        </p>
-                    </div>
+                    <button onClick={() => { openCreateOrganization(); setIsOpen(false) }} className="mt-2 w-full p-2 rounded-xl border border-dashed border-[var(--surface-border)] text-xs text-[var(--brand-a)] hover:bg-[var(--brand-a)]/10 transition flex items-center justify-center gap-1.5" >
+                        <Plus className="w-4 h-4" /> Create Workspace
+                    </button>
                 </div>
             )}
         </div>

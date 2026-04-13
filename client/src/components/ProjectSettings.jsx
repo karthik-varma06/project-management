@@ -1,4 +1,4 @@
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { Plus, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 import AddProjectMember from "./AddProjectMember";

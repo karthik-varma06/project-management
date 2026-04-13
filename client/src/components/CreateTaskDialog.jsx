@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useDispatch,useSelector } from "react-redux";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import { useAuth } from "@clerk/clerk-react";
 import api from "../configs/api";
 import toast from "react-hot-toast";
