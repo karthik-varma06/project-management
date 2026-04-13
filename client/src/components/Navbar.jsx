@@ -1,4 +1,4 @@
-import { Search, Sun, Moon, Bell, Sparkles } from 'lucide-react'
+import { Search, Sun, Moon, Bell, Sparkles, LogOut } from 'lucide-react'
 import { HiOutlineAdjustmentsHorizontal } from 'react-icons/hi2'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleTheme } from '../features/themeSlice'
@@ -9,7 +9,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
     const dispatch = useDispatch();
     const { theme } = useSelector(state => state.theme);
     const { user } = useUser();
-    const { openUserProfile } = useClerk();
+    const { openUserProfile, signOut } = useClerk();
 
     return (
         <div className="w-full border-b border-[var(--surface-border)] bg-[var(--bg-elevated)]/90 backdrop-blur-xl px-6 xl:px-16 py-3 flex-shrink-0">
@@ -32,6 +32,14 @@ const Navbar = ({ setIsSidebarOpen }) => {
                 <div className="flex items-center gap-2 sm:gap-3">
                     <button className="size-9 rounded-xl border border-[var(--surface-border)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-black/5 dark:hover:bg-white/5 transition">
                         <Bell className='size-4' />
+                    </button>
+
+                    <button
+                        onClick={async () => await signOut()}
+                        className="size-9 rounded-xl border border-[var(--surface-border)] flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition"
+                        title="Log out"
+                    >
+                        <LogOut className='size-4' />
                     </button>
 
                     <button onClick={() => dispatch(toggleTheme())} className="size-9 rounded-xl border border-[var(--surface-border)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-black/5 dark:hover:bg-white/5 transition">

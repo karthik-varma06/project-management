@@ -3,11 +3,11 @@ import { NavLink } from 'react-router-dom'
 import MyTasksSidebar from './MyTasksSidebar'
 import ProjectSidebar from './ProjectsSidebar'
 import WorkspaceDropdown from './WorkspaceDropdown'
-import { HiOutlineSquares2X2, HiOutlineUsers, HiOutlineFolderOpen, HiOutlineCog6Tooth } from 'react-icons/hi2'
+import { HiOutlineSquares2X2, HiOutlineUsers, HiOutlineFolderOpen, HiOutlineCog6Tooth, HiOutlineArrowRightOnRectangle } from 'react-icons/hi2'
 import { useClerk } from '@clerk/clerk-react'
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
-    const { openUserProfile } = useClerk();
+    const { openUserProfile, signOut } = useClerk();
 
     const menuItems = [
         { name: 'Dashboard', href: '/', icon: HiOutlineSquares2X2 },
@@ -55,6 +55,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                     >
                         <HiOutlineCog6Tooth size={17} />
                         <p className='text-sm truncate'>Settings</p>
+                    </button>
+
+                    <button
+                        className='mt-1 flex w-full items-center gap-3 py-2.5 px-3 text-rose-500 cursor-pointer rounded-xl hover:bg-rose-500 hover:text-white transition-all'
+                        onClick={async () => await signOut()}
+                    >
+                        <HiOutlineArrowRightOnRectangle size={17} />
+                        <p className='text-sm truncate'>Log out</p>
                     </button>
                 </div>
 
