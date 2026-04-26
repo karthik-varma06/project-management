@@ -1,332 +1,426 @@
-Project Management System - Full Stack Application
+# Project Management Platform
 
-A full-stack project management platform that allows teams to manage projects, assign tasks, collaborate, and receive real-time email notifications for task updates.
-
----
-
-1. Problem Statement
-
-For Teams:
-
-Managing projects across multiple tools leads to confusion and inefficiency  
-Tracking task ownership, deadlines, and progress becomes difficult  
-Communication gaps delay project completion  
-
-For Developers / Students:
-
-Learning full-stack development requires integrating multiple complex systems  
-Handling authentication, database, background jobs, and notifications is non-trivial  
-
-Why This is Painful:
-
-Teams lack a centralized system for collaboration and tracking  
-Manual coordination leads to missed deadlines and miscommunication  
-Building such a system from scratch involves multiple moving parts  
+A full-stack, workspace-centric project management system for planning projects, assigning tasks, collaborating through task comments, and automating assignment/reminder emails using event-driven workflows.
 
 ---
 
-2. Constraints & Assumptions
+## Project Overview
 
-Technical Constraints:
+This project addresses a common product and engineering problem: teams often split project execution across disconnected tools (task board, chat, email, docs), which causes ownership ambiguity, status drift, and delayed delivery.
 
-Authentication must be secure and scalable  
-Database must handle relational data (users, projects, tasks)  
-Email notifications should be asynchronous and non-blocking  
-Frontend must stay in sync with backend state  
+This platform centralizes:
+- workspace-level team organization,
+- project lifecycle tracking,
+- task assignment and status management,
+- project discussions (comments),
+- automated notification workflows.
 
-Key Assumptions:
+It is designed as a realistic production-style application, not just a CRUD demo.
 
-Users are authenticated via Clerk  
-Each project has a team lead (admin)  
-Tasks belong to a project and can be assigned to members  
-Only project admins can create/update tasks  
+### Problem Statement
 
-What Makes This Hard:
-
-Managing relational data across multiple entities  
-Handling real-time updates and UI consistency  
-Implementing background workflows (email reminders)  
-Ensuring proper role-based access control  
-
----
-
-3. Proposed Solution
-
-Core Idea:
-
-A centralized project management system where:
-
-Users can create and manage projects  
-Team members can be added to projects  
-Tasks can be assigned with deadlines and priorities  
-Email notifications are triggered on task assignment  
-Background jobs handle reminders and delayed actions  
-
-Why This Approach:
-
-Approach                    Why We Didn't Choose It
-Basic CRUD App             No real-world scalability or async handling
-Manual Email Triggers      Blocks request cycle, inefficient
-Event-driven System        Scalable, clean separation (Chosen)
-
-Key Tradeoffs:
-
-Simplicity over Completeness: Focus on core features instead of enterprise complexity  
-Async over Immediate: Emails handled in background (Inngest)  
-Security over Flexibility: Strict role-based permissions  
+Teams need a single system where they can:
+- manage projects with priorities, timelines, and progress,
+- assign accountable owners for every task,
+- enforce permission boundaries (admin/team lead/member),
+- collaborate asynchronously in task-level discussions,
+- receive notifications without blocking core API requests.
 
 ---
 
-4. System Architecture
+## Solution Explanation
 
-High-Level Architecture
+The application is built around a workspace as the top-level boundary. Each workspace contains projects; each project contains tasks and members; each task can have comments and an assignee.
 
-Frontend (React + Redux)
-        ↓
-Backend (Node.js + Express)
-        ↓
-Authentication (Clerk)
-        ↓
-ORM (Prisma)
-        ↓
-Database (NeonDB - PostgreSQL)
-        ↓
-Event System (Inngest)
-        ↓
-Email Service (Nodemailer + Brevo SMTP)
+Core flow:
+1. Clerk handles user and organization identity.
+2. Backend APIs enforce access checks before mutating workspace/project/task data.
+3. Prisma + PostgreSQL (Neon) persist all domain entities.
+4. Task assignment triggers an Inngest event.
+5. Inngest executes asynchronous email workflows via Nodemailer (Brevo SMTP).
+6. Frontend Redux state reflects workspace/project/task updates in real time from API responses.
 
----
+### Core Idea and Approach
 
-Component Breakdown
+Instead of embedding everything into synchronous request-response logic, the app separates concerns:
+- synchronous APIs for core transactional operations (create/update/delete),
+- asynchronous workflows for side effects (emails, reminders),
+- explicit role checks for authorization at workspace/project boundaries.
 
-Backend:
-
-Project Controller: Create/update projects, manage members  
-Task Controller: Create/update/delete tasks with validation  
-Comment System: Add and retrieve task discussions  
-Auth Middleware: Uses Clerk for user authentication  
-Inngest Functions: Handles background workflows (emails, reminders)  
-
-Frontend:
-
-Dashboard: Overview of projects and tasks  
-Project View: Manage tasks, members, and settings  
-Task Management UI: Create, update, assign tasks  
-Sidebar (My Tasks): Displays tasks assigned to logged-in user  
-Comments Section: Task discussions  
+This design avoids API latency inflation and keeps business logic maintainable.
 
 ---
 
-Key Technology Choices:
+## Why This Project Stands Out
 
-Technology        Why Chosen
-Clerk             Simplifies authentication and session management
-Prisma            Type-safe ORM for database operations
-NeonDB            Serverless PostgreSQL, easy setup
-Inngest           Event-driven background job processing
-Nodemailer        Simple email sending library
-Brevo SMTP        Reliable email delivery provider
-React + Redux     State management and UI handling
+This project is stronger than generic “task manager clones” for the following technical reasons:
 
----
+1. Workspace + organization sync with Clerk events  
+   User and organization lifecycle changes are synchronized to internal DB entities using Inngest functions.
 
-Data Flow Example
+2. Event-driven notification workflow, not inline email sending  
+   Task assignment emits `app/task.assigned`; email and due-date reminder logic run asynchronously via Inngest.
 
-1. Admin creates a task and assigns it to a user  
-2. Task is stored in database via Prisma  
-3. Backend triggers event using Inngest  
-4. Inngest processes event asynchronously  
-5. Email sent via Nodemailer using Brevo SMTP  
-6. User receives task assignment email  
+3. Role-aware mutation rules  
+   - Workspace admin required for workspace-level member onboarding and project creation.
+   - Project lead required for project-level member/task management.
+   - Project membership required for commenting.
 
----
+4. Rich relational model with explicit constraints  
+   Prisma schema uses unique membership constraints (`@@unique`) to prevent duplicate workspace/project memberships.
 
-Failure Modes & Edge Cases
+5. End-to-end full-stack implementation  
+   Includes auth, backend APIs, relational persistence, background jobs, analytics dashboards, calendar/task views, and collaborative comments.
 
-Task Handling:
+### What makes it different from typical alternatives
 
-Invalid project ID → returns 404  
-Unauthorized user → returns 403  
-Assignee not part of project → blocked  
-
-Email System:
-
-Missing SMTP config → email fails gracefully  
-Delayed jobs handled via Inngest retry  
-
-Frontend:
-
-Missing data handled with optional chaining  
-Fallback UI for empty states  
+Most portfolio project managers stop at basic CRUD + local UI state. This system includes:
+- organization-aware authentication integration,
+- asynchronous business workflow orchestration,
+- cross-entity permission enforcement,
+- project analytics and task calendar visualizations,
+- production deployment setup for both frontend and backend (Vercel configs).
 
 ---
 
-5. Ideal End State (Production-Grade)
+## Key Features
 
-Scalability Plan
-
-What Breaks First:
-
-Database load with large number of users  
-Email rate limits (Brevo free tier)  
-Inngest execution limits  
-
-Production Improvements Needed:
-
-Component        Current State          Production Need
-Database         NeonDB                 Managed cluster + scaling
-Email            Brevo SMTP             AWS SES / SendGrid
-Jobs             Inngest                Queue system (BullMQ/Kafka)
-Auth             Clerk                  Production keys + policies
-Caching          None                   Redis for performance
-
-Scaling Targets:
-
-Users: 10,000+ concurrent users  
-Tasks: Millions of records  
-Requests: 100+ per second  
-
-What Needs Hardening:
-
-Input validation  
-Rate limiting  
-Error logging  
-Monitoring  
+- Clerk-based authentication and organization/workspace context
+- Workspace member management with role controls (`ADMIN`, `MEMBER`)
+- Project creation, updates, and team assignment
+- Task creation, status updates, and bulk deletion
+- Task type/status/priority/assignee filtering
+- Task discussion comments with project membership checks
+- “My Tasks” personalized sidebar by assignee identity
+- Project analytics dashboard (status/type/priority distributions)
+- Calendar-based task visibility (upcoming and overdue)
+- Automated email on task assignment
+- Due-date reminder email if task remains incomplete
 
 ---
 
-6. Features Implemented
+## Tech Stack
 
-Core Features:
+### Frontend
+- React 19
+- React Router DOM 7
+- Redux Toolkit + React Redux
+- Clerk React SDK
+- Axios
+- Tailwind CSS v4
+- Recharts
+- date-fns
+- react-hot-toast
+- lucide-react + react-icons
 
-User authentication using Clerk  
-Project creation and management  
-Add/remove project members  
-Task creation with assignment  
-Task updates and deletion  
-Comment system for tasks  
-Email notifications on task assignment  
-Reminder emails before due date  
-"My Tasks" sidebar for assigned tasks  
+### Backend
+- Node.js + Express 5
+- Clerk Express middleware
+- Prisma ORM
+- PostgreSQL (Neon serverless)
+- Inngest (event/workflow orchestration)
+- Nodemailer (SMTP integration with Brevo)
+
+### Dev / Build / Deployment
+- Vite
+- ESLint
+- Prisma CLI
+- Nodemon
+- Vercel (frontend and backend configs present)
 
 ---
 
-7. How to Run / Demo
+## Project Structure
 
-Prerequisites:
-
-Node.js (v16+)  
-Clerk account  
-Brevo SMTP credentials  
-NeonDB database  
+```text
+project-management/
+├── README.md
+├── client/                         # React frontend
+│   ├── src/
+│   │   ├── app/store.js            # Redux store registration
+│   │   ├── features/
+│   │   │   ├── workspaceSlice.js   # Workspace + nested project/task state/actions
+│   │   │   └── themeSlice.js       # Light/dark mode state
+│   │   ├── configs/api.js          # Axios instance (VITE_BASEURL)
+│   │   ├── pages/
+│   │   │   ├── Layout.jsx          # Auth gate + app shell
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Projects.jsx
+│   │   │   ├── ProjectDetails.jsx
+│   │   │   ├── TaskDetails.jsx
+│   │   │   └── Team.jsx
+│   │   ├── components/             # Dialogs, analytics, calendar, sidebars, cards
+│   │   ├── assets/                 # Images + mock data file
+│   │   ├── App.jsx                 # Router tree
+│   │   ├── main.jsx                # App bootstrap + ClerkProvider
+│   │   └── index.css               # Design system tokens + global styles
+│   ├── package.json
+│   └── vercel.json
+│
+└── server/                         # Express backend
+    ├── server.js                   # Middleware + route registration + inngest serve
+    ├── configs/
+    │   ├── prisma.js               # Prisma client (Neon adapter)
+    │   └── nodemailer.js           # SMTP transporter + sendEmail helper
+    ├── middlewares/
+    │   └── authMiddleware.js       # Clerk auth protection
+    ├── prisma/
+    │   └── schema.prisma           # Full relational schema + enums
+    ├── controllers/
+    │   ├── workspaceController.js
+    │   ├── projectController.js
+    │   ├── taskController.js
+    │   └── commentController.js
+    ├── routes/
+    │   ├── workspaceRoutes.js
+    │   ├── projectRoutes.js
+    │   ├── taskRoutes.js
+    │   └── commentRoutes.js
+    ├── inngest/
+    │   └── index.js                # Clerk sync functions + task email workflow
+    ├── package.json
+    └── vercel.json
+```
 
 ---
 
-Backend Setup
+## Workflow / How It Works
 
+### 1) Authentication and workspace context
+- Frontend bootstraps with `ClerkProvider`.
+- `Layout.jsx` checks Clerk user state:
+  - unauthenticated users see sign-in/sign-up UI,
+  - authenticated users load workspaces from backend (`fetchWorkspaces` thunk).
+- Current workspace ID is persisted in localStorage and switched via workspace dropdown.
+
+### 2) Data loading strategy
+- `fetchWorkspaces` calls `GET /api/workspaces` with Clerk bearer token.
+- Backend returns nested data: workspace → members/projects → tasks/comments/assignees.
+- Redux stores this nested payload and powers dashboard/project/task/team screens.
+
+### 3) Project lifecycle
+- Admin creates project (`POST /api/projects`).
+- Backend validates workspace existence + admin membership.
+- Project and project members are persisted via Prisma.
+- Frontend updates local workspace state with `addProject`.
+
+### 4) Task lifecycle
+- Project lead creates task (`POST /api/tasks`).
+- Backend validates:
+  - project exists,
+  - caller is team lead,
+  - assignee belongs to project.
+- Task is created in DB and returned with assignee details.
+- Frontend updates state using `addTask`.
+
+### 5) Event-driven notification path
+- After task creation, backend emits `app/task.assigned` to Inngest.
+- Inngest function:
+  - fetches task + assignee + project,
+  - sends assignment email,
+  - sleeps until due date,
+  - if task still not `DONE`, sends reminder email.
+
+### 6) Task updates and deletion
+- Task status update via `PUT /api/tasks/:id` (team lead gated).
+- Bulk deletion via `POST /api/tasks/delete` with `taskIds`.
+- Redux state is synchronized using `updateTask` and `deleteTask`.
+
+### 7) Collaboration (comments)
+- Members of a project can post comments on tasks (`POST /api/comments`).
+- Task details page polls comments every 10 seconds to keep discussions refreshed.
+- Comment retrieval: `GET /api/comments/:taskId`.
+
+### 8) Reporting and planning views
+- Dashboard statistics + activity stream
+- Project analytics (status/type/priority charts)
+- Calendar view for due dates, upcoming tasks, and overdue tasks
+- Team page showing membership and contribution context
+
+---
+
+## API Documentation
+
+Base URL (frontend): `VITE_BASEURL`
+
+All protected routes require:
+- `Authorization: Bearer <clerk_token>`
+
+### Workspace
+- `GET /api/workspaces`  
+  Get all workspaces where current user is a member (with nested projects/tasks/members).
+
+- `POST /api/workspaces/add-member`  
+  Add existing user to workspace (admin only).  
+  Body: `{ email, role, workspaceId, message? }`
+
+### Projects
+- `POST /api/projects`  
+  Create project (workspace admin required).  
+  Body includes: `workspaceId, name, description, status, priority, start_date, end_date, team_members, team_lead, progress`
+
+- `PUT /api/projects`  
+  Update project (workspace admin required).
+
+- `POST /api/projects/:projectId/add-member`  
+  Add member to project (project team lead required).  
+  Body: `{ email }`
+
+### Tasks
+- `POST /api/tasks`  
+  Create task (project team lead required).  
+  Triggers `app/task.assigned` event.
+
+- `PUT /api/tasks/:id`  
+  Update task (project team lead required).
+
+- `POST /api/tasks/delete`  
+  Bulk delete tasks (project team lead required).  
+  Body: `{ taskIds: string[] }`
+
+### Comments
+- `POST /api/comments`  
+  Add comment (project member required).  
+  Body: `{ taskId, content }`
+
+- `GET /api/comments/:taskId`  
+  Get all comments for a task.
+
+### Inngest endpoint
+- `POST /api/inngest`  
+  Inngest handler endpoint served by Express.
+
+---
+
+## Setup & Installation
+
+## Prerequisites
+
+- Node.js 18+ (recommended: 20+)
+- npm
+- PostgreSQL database (Neon used in this project)
+- Clerk project (auth + organizations)
+- Inngest credentials
+- Brevo SMTP credentials (or equivalent SMTP provider)
+
+---
+
+## 1) Clone repository
+
+```bash
+git clone https://github.com/karthik-varma06/project-management.git
+cd project-management
+```
+
+---
+
+## 2) Backend setup
+
+```bash
 cd server
 npm install
+```
 
-Create .env file:
+Create `server/.env`:
 
+```env
+PORT=5000
 NODE_ENV=development
 
 # Clerk
 CLERK_SECRET_KEY=your_clerk_secret_key
 CLERK_WEBHOOK_SECRET=your_clerk_webhook_secret
 
-# Database (Neon)
-DATABASE_URL=your_neon_database_url
-DIRECT_URL=your_neon_direct_url
+# Database
+DATABASE_URL=your_database_url
+DIRECT_URL=your_direct_database_url
 
-# Inngest (for background jobs)
+# Inngest
 INNGEST_EVENT_KEY=your_inngest_event_key
 INNGEST_SIGNING_KEY=your_inngest_signing_key
 
-# Email (Brevo SMTP)
-SMTP_USER=your_brevo_smtp_user
-SMTP_PASSWORD=your_brevo_smtp_password
+# SMTP / email
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_password
 SENDER_EMAIL=your_verified_sender_email
+```
 
 Run backend:
 
+```bash
 npm run server
+```
 
-Server runs on:
-http://localhost:5000
+Backend runs at:
+- `http://localhost:5000`
 
 ---
 
-Frontend Setup
+## 3) Frontend setup
 
-cd client
+```bash
+cd ../client
 npm install
+```
 
-Create .env file:
+Create `client/.env`:
 
+```env
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 VITE_BASEURL=http://localhost:5000
-
+```
 
 Run frontend:
 
+```bash
 npm run dev
+```
 
-App runs on:
-http://localhost:5173
-
----
-
-Demo Flow
-
-1. Sign in using Clerk  
-2. Create a project  
-3. Add members to project  
-4. Create tasks and assign users  
-5. Assigned user receives email  
-6. View tasks in "My Tasks" sidebar  
-7. Add comments to tasks  
+Frontend runs at:
+- `http://localhost:5173`
 
 ---
 
-8. Notes on Design Decisions
+## 4) Prisma notes
 
-Why Clerk:
+From `server/` when schema changes:
 
-Avoid building authentication from scratch  
-
-Why Prisma:
-
-Simplifies database queries and ensures type safety  
-
-Why Inngest:
-
-Handles background jobs without blocking API  
-
-Why Nodemailer + Brevo:
-
-Simple and reliable email integration  
+```bash
+npx prisma generate
+npx prisma db push
+```
 
 ---
 
-9. Future Improvements
+## Usage
 
-Real-time updates using WebSockets  
-Role-based permissions (viewer/editor/admin)  
-File attachments for tasks  
-Notifications panel inside app  
-Mobile responsiveness improvements  
+1. Sign in via Clerk.
+2. Create/select an organization (workspace).
+3. Open dashboard and create a project.
+4. Add project members and assign team lead.
+5. Create tasks with type, priority, status, assignee, due date.
+6. Track work via:
+   - Tasks table (filters + status updates),
+   - Calendar view,
+   - Analytics view,
+   - Team page.
+7. Open task details and collaborate via comments.
+8. Assigned users receive email notifications; due-date reminders are sent for incomplete tasks.
 
 ---
 
-10. Summary
+## Potential Improvements / Future Scope
 
-This project demonstrates:
-
-Full-stack development (Frontend + Backend)  
-Authentication integration  
-Database design and ORM usage  
-Event-driven architecture  
-Email automation system  
-
-It reflects real-world system design patterns and scalable architecture fundamentals.
+1. Real-time comments and task updates (WebSockets/SSE instead of polling)
+2. Server-side pagination for workspace/project/task queries
+3. Strong input validation layer (e.g., Zod) for all API payloads
+4. Fine-grained RBAC (workspace admin, project manager, contributor, viewer)
+5. Audit log for task/project/member changes
+6. Notification center (in-app + email preferences)
+7. File attachments for tasks/comments
+8. Search API (server-side indexing by task/project/member fields)
+9. Observability: structured logs, tracing, alerting
+10. Automated tests:
+    - backend integration tests for auth/permissions,
+    - frontend component tests and route tests,
+    - e2e tests for task assignment and comment workflows.
