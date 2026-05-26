@@ -1,53 +1,142 @@
-# Project Management Platform
+# Project Management Platform 
 
-A full-stack, workspace-centric project management system for planning projects, assigning tasks, collaborating through task comments, and automating assignment/reminder emails using event-driven workflows.
+A full-stack, workspace-centric project management system for planning projects, assigning tasks, collaborating through task comments, and automating assignment/reminder emails using an event-driven workflow.
+
+This repository contains:
+
+- **Frontend:** `client/` (React + Redux + Tailwind)
+- **Backend:** `server/` (Express + Prisma + PostgreSQL + Clerk + Inngest)
 
 ---
 
-## Key Features
+## Features
 
-- Clerk-based authentication and organization/workspace context
-- Workspace member management with role controls (`ADMIN`, `MEMBER`)
-- Project creation, updates, and team assignment
-- Task creation, status updates, and bulk deletion
-- Task type/status/priority/assignee filtering
-- Task discussion comments with project membership checks
-- “My Tasks” personalized sidebar by assignee identity
-- Project analytics dashboard (status/type/priority distributions)
-- Calendar-based task visibility (upcoming and overdue)
-- Automated email on task assignment
-- Due-date reminder email if task remains incomplete
+### Authentication & Organizations (Clerk)
+- Secure authentication (sign in / sign up) handled via Clerk UI components.
+- Organization/workspace onboarding using Clerk Organizations (users create an organization if they have none).
+- Backend protected APIs using Clerk + an auth middleware guard.
+
+---
+
+## Role-Based Access Control (RBAC)
+
+RBAC is enforced primarily **on the backend** via database roles and permission checks.
+
+### Workspace roles
+Workspace membership includes a role:
+- `ADMIN`
+- `MEMBER`
+
+**Workspace ADMIN can:**
+- Add workspace members (invite by email + set role)
+- Create projects in the workspace
+- Update projects in the workspace
+
+**Workspace MEMBER can:**
+- View workspace/projects/tasks they belong to (via membership)
+- Participate in projects they’re added to
+
+### Project permissions
+Each project has a `team_lead` (project owner/lead).
+
+**Project Team Lead can:**
+- Add members to that project
+- Create tasks
+- Update tasks
+- Bulk delete tasks
+
+**Project Members can:**
+- Comment on tasks (discussion thread) if they belong to the project
+
+> Note: “Role-based login” is not a separate login flow. All users authenticate via Clerk; permissions are applied after login through workspace/project rules.
+
+---
+
+## Workspace Management
+- Fetch all workspaces the current user belongs to.
+- Workspace selection persisted locally (current workspace stored in `localStorage`).
+- Workspace members include roles and can be managed by workspace admins.
+
+---
+
+## Project Management
+- Create projects within a workspace (admin-only).
+- Update project details (admin-only).
+- Assign:
+  - Project status (e.g., planning/active/completed, depending on UI usage)
+  - Priority
+  - Progress
+  - Start/end dates
+- Project membership management:
+  - Team lead can add members to their project.
+
+---
+
+## Task Management
+- Create tasks within a project (team lead-only).
+- Update tasks (team lead-only).
+- Bulk delete tasks (team lead-only).
+- Task fields supported:
+  - Title, description
+  - Status (`TODO`, `IN_PROGRESS`, `DONE`)
+  - Type (`TASK`, `BUG`, `FEATURE`, `IMPROVEMENT`, `OTHER`)
+  - Priority (`LOW`, `MEDIUM`, `HIGH`)
+  - Assignee
+  - Due date
+- “My Tasks” experience (frontend sidebar / filtering) driven by assignee identity.
+
+---
+
+## Collaboration (Comments)
+- Task comments supported.
+- Only **project members** can create comments on tasks in that project.
+- Task details view refreshes comments periodically to keep discussions up to date.
+
+---
+
+## Analytics & Planning Views (Frontend)
+- Dashboard overview
+- Project analytics charts (status/type/priority distributions)
+- Calendar-based task visibility (upcoming + overdue)
+
+---
+
+## Email Automation (Event-driven)
+When a task is created/assigned:
+- Backend emits an event to Inngest
+- Email is sent to the assignee
+- Inngest waits until the due date
+- If the task is not completed (`DONE`), it sends a reminder email
+
+Email sending uses Nodemailer (SMTP provider such as Brevo).
 
 ---
 
 ## Tech Stack
 
-### Frontend
-- React 19
-- React Router DOM 7
-- Redux Toolkit + React Redux
+### Frontend (`client/`)
+- React
+- React Router
+- Redux Toolkit
 - Clerk React SDK
 - Axios
-- Tailwind CSS v4
+- Tailwind CSS
 - Recharts
 - date-fns
-- react-hot-toast
-- lucide-react + react-icons
 
-### Backend
-- Node.js + Express 5
+### Backend (`server/`)
+- Node.js + Express
 - Clerk Express middleware
 - Prisma ORM
-- PostgreSQL (Neon serverless)
-- Inngest (event/workflow orchestration)
-- Nodemailer (SMTP integration with Brevo)
+- PostgreSQL (Neon serverless ready)
+- Inngest (workflow + scheduling)
+- Nodemailer (SMTP)
 
-### Dev / Build / Deployment
+### Tooling / Deployment
 - Vite
 - ESLint
 - Prisma CLI
-- Nodemon
-- Vercel (frontend and backend configs present)
+- Vercel configs present (frontend + backend)
 
 ---
 
@@ -55,121 +144,35 @@ A full-stack, workspace-centric project management system for planning projects,
 
 ```text
 project-management/
-├── README.md
-├── client/                         # React frontend
+├── client/                 # React frontend
 │   ├── src/
-│   │   ├── app/store.js            # Redux store registration
-│   │   ├── features/
-│   │   │   ├── workspaceSlice.js   # Workspace + nested project/task state/actions
-│   │   │   └── themeSlice.js       # Light/dark mode state
-│   │   ├── configs/api.js          # Axios instance (VITE_BASEURL)
-│   │   ├── pages/
-│   │   │   ├── Layout.jsx          # Auth gate + app shell
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── Projects.jsx
-│   │   │   ├── ProjectDetails.jsx
-│   │   │   ├── TaskDetails.jsx
-│   │   │   └── Team.jsx
-│   │   ├── components/             # Dialogs, analytics, calendar, sidebars, cards
-│   │   ├── assets/                 # Images + mock data file
-│   │   ├── App.jsx                 # Router tree
-│   │   ├── main.jsx                # App bootstrap + ClerkProvider
-│   │   └── index.css               # Design system tokens + global styles
-│   ├── package.json
+│   │   ├── pages/          # Layout, Dashboard, Projects, ProjectDetails, TaskDetails, Team
+│   │   ├── features/       # Redux slices (workspace, theme, etc.)
+│   │   ├── components/     # UI components (sidebar/navbar/dialogs/charts/calendar/etc.)
+│   │   └── configs/api.js  # Axios base URL (VITE_BASEURL)
 │   └── vercel.json
 │
-└── server/                         # Express backend
-    ├── server.js                   # Middleware + route registration + inngest serve
-    ├── configs/
-    │   ├── prisma.js               # Prisma client (Neon adapter)
-    │   └── nodemailer.js           # SMTP transporter + sendEmail helper
-    ├── middlewares/
-    │   └── authMiddleware.js       # Clerk auth protection
-    ├── prisma/
-    │   └── schema.prisma           # Full relational schema + enums
-    ├── controllers/
-    │   ├── workspaceController.js
-    │   ├── projectController.js
-    │   ├── taskController.js
-    │   └── commentController.js
-    ├── routes/
-    │   ├── workspaceRoutes.js
-    │   ├── projectRoutes.js
-    │   ├── taskRoutes.js
-    │   └── commentRoutes.js
-    ├── inngest/
-    │   └── index.js                # Clerk sync functions + task email workflow
-    ├── package.json
+└── server/                 # Express backend
+    ├── server.js           # Express app + routes + Inngest serve
+    ├── prisma/schema.prisma
+    ├── middlewares/authMiddleware.js
+    ├── controllers/        # workspace/project/task/comment controllers
+    ├── routes/             # route wiring
+    ├── inngest/            # workflows + events
     └── vercel.json
 ```
 
 ---
 
-## Workflow / How It Works
-
-### 1) Authentication and workspace context
-- Frontend bootstraps with `ClerkProvider`.
-- `Layout.jsx` checks Clerk user state:
-  - unauthenticated users see sign-in/sign-up UI,
-  - authenticated users load workspaces from backend (`fetchWorkspaces` thunk).
-- Current workspace ID is persisted in localStorage and switched via workspace dropdown.
-
-### 2) Data loading strategy
-- `fetchWorkspaces` calls `GET /api/workspaces` with Clerk bearer token.
-- Backend returns nested data: workspace → members/projects → tasks/comments/assignees.
-- Redux stores this nested payload and powers dashboard/project/task/team screens.
-
-### 3) Project lifecycle
-- Admin creates project (`POST /api/projects`).
-- Backend validates workspace existence + admin membership.
-- Project and project members are persisted via Prisma.
-- Frontend updates local workspace state with `addProject`.
-
-### 4) Task lifecycle
-- Project lead creates task (`POST /api/tasks`).
-- Backend validates:
-  - project exists,
-  - caller is team lead,
-  - assignee belongs to project.
-- Task is created in DB and returned with assignee details.
-- Frontend updates state using `addTask`.
-
-### 5) Event-driven notification path
-- After task creation, backend emits `app/task.assigned` to Inngest.
-- Inngest function:
-  - fetches task + assignee + project,
-  - sends assignment email,
-  - sleeps until due date,
-  - if task still not `DONE`, sends reminder email.
-
-### 6) Task updates and deletion
-- Task status update via `PUT /api/tasks/:id` (team lead gated).
-- Bulk deletion via `POST /api/tasks/delete` with `taskIds`.
-- Redux state is synchronized using `updateTask` and `deleteTask`.
-
-### 7) Collaboration (comments)
-- Members of a project can post comments on tasks (`POST /api/comments`).
-- Task details page polls comments every 10 seconds to keep discussions refreshed.
-- Comment retrieval: `GET /api/comments/:taskId`.
-
-### 8) Reporting and planning views
-- Dashboard statistics + activity stream
-- Project analytics (status/type/priority charts)
-- Calendar view for due dates, upcoming tasks, and overdue tasks
-- Team page showing membership and contribution context
-
----
-
 ## Setup & Installation
 
-## Prerequisites
-
+### Prerequisites
 - Node.js 18+ (recommended: 20+)
 - npm
-- PostgreSQL database (Neon used in this project)
-- Clerk project (auth + organizations)
+- PostgreSQL database (Neon recommended)
+- Clerk project (Authentication + Organizations)
 - Inngest credentials
-- Brevo SMTP credentials (or equivalent SMTP provider)
+- SMTP credentials (Brevo or any SMTP provider)
 
 ---
 
@@ -220,6 +223,7 @@ npm run server
 ```
 
 Backend runs at:
+
 - `http://localhost:5000`
 
 ---
@@ -245,6 +249,7 @@ npm run dev
 ```
 
 Frontend runs at:
+
 - `http://localhost:5173`
 
 ---
@@ -259,3 +264,6 @@ npx prisma db push
 ```
 
 ---
+
+## License
+Add a LICENSE file if you plan to open-source this project.
